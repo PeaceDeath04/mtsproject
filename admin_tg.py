@@ -8,7 +8,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from sqlite import db_start,edit_profile,create_profile,edit_opros,create_opros,update_table
 from main import dp,bot 
-from markups import but_admin_menu as menu
+from markups import but_admin_menu,reverse_admin_menu
 
 admin_id = 967282513
 
@@ -21,7 +21,12 @@ class StateGroupHelol(StatesGroup):
 
 @dp.message_handler(chat_id=admin_id,text='admin')
 async def admin_menu(msg: types.Message):
-    await bot.send_message(chat_id=admin_id, text='заходит улитка в бар',reply_markup=menu)
+    await bot.send_message(chat_id=admin_id, text='Меню админа',reply_markup=but_admin_menu)
+
+@dp.callback_query_handler(chat_id=admin_id,text='admin')
+async def admin_menu(msg: types.Message):
+    await bot.send_message(chat_id=admin_id, text='Меню админа',reply_markup=but_admin_menu)
+
 
 @dp.callback_query_handler(chat_id=admin_id,text='helol_txt')
 async def admin_menu(call: types.CallbackQuery):
@@ -32,6 +37,7 @@ async def admin_menu(call: types.CallbackQuery):
 async def helolRename(msg: types.Message,state: FSMContext):
     update_table('HelolText',msg.text)
     await state.finish()
+    await bot.send_message(chat_id=admin_id, text='Текст успешно изменён', reply_markup=reverse_admin_menu)
 
 @dp.callback_query_handler(chat_id=admin_id,text='plus_txt')
 async def admin_menu(call: types.CallbackQuery):
@@ -42,6 +48,7 @@ async def admin_menu(call: types.CallbackQuery):
 async def helolRename(msg: types.Message,state: FSMContext):
     update_table('WherePlus',msg.text)
     await state.finish()
+    await bot.send_message(chat_id=admin_id, text='Текст успешно изменён', reply_markup=reverse_admin_menu)
 
 
 

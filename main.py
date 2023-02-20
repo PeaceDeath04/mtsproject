@@ -14,13 +14,6 @@ from texts import questions,answers,tarif_on_sale
 
 
 
-
-#region Инициализация бота и дспетчера асинхронности
-
-#endregion
-
-#region Методы для тг
-
 async def on_startup(_):
     """Метод on_startup\n
        При Запуске программы main.py происходит проверка на наличие или создание дата базы
