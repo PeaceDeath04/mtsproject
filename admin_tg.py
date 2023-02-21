@@ -22,10 +22,20 @@ class StateGroupHelol(StatesGroup):
 
 class StateGroupTarifGet(StatesGroup):
     """Машина Состояний StateGroup
-       Здесь инициализируются этапы опросов/анкетирования клиента"""
+      Здесь заполняется тариф в бд """
 
     StateMain = State()
     StateCaption = State()
+
+class StateGroupQuestion(StatesGroup):
+    """Машина Состояний StateGroup
+      Здесь заполняется тариф в бд """
+
+    Que1 = State()
+    Que2 = State()
+    Que3 = State()
+    Que4 = State()
+    Que5 = State()
 #endregion
 
 #region Админ панель

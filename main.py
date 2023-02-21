@@ -10,7 +10,8 @@ import admin_tg
 from disp import bot,dp,storage
 
 from sqlite import db_start,edit_profile,create_profile,edit_opros,create_opros,show_on_bd,show_tarif_bd
-from texts import questions,answers,tarif_on_sale
+from texts import questions,answers
+from markups import StartMenu,MainMenu
 
 
 #region функции
@@ -73,10 +74,8 @@ async def ClearAnsw(data):
 async def but_pressed(message: types.Message) -> None:
     await create_profile(message.from_user.id)
     await create_opros(message.from_user.id)
-    markup = InlineKeyboardMarkup().add(
-        InlineKeyboardButton("Начать", callback_data="opros")
-    )
-    await message.answer(show_on_bd('HelolText'),reply_markup= markup)
+
+    await message.answer(show_on_bd('HelolText'),reply_markup= StartMenu)
 
 #region Анкетирование
 @dp.callback_query_handler(text=["opros"])
@@ -131,15 +130,8 @@ async def que5(call: types.CallbackQuery,state: FSMContext):
                                  f'Мы готовы предложить вам \n '
                                  '\n'
                                  f'{show_tarif_bd(1)[0]}\n{show_tarif_bd(1)[1]}',parse_mode = 'html')
-    markup = InlineKeyboardMarkup(row_width=3)
-    but1 = InlineKeyboardButton("Сверить цены",callback_data='sverit')
-    but2 = InlineKeyboardButton("Заполнить заявку онлайн", callback_data='online')
-    but3 = InlineKeyboardButton("Позвонить на номер сотрудника",callback_data='phone')
-    markup.row(but1)
-    markup.row(but2)
-    markup.row(but3)
 
-    await bot.send_message(call.message.chat.id,text='Мы лучшие в своем деле и нам нечего скрывать ! Вы можете самостоятельно сверить цены услуг других операторов Или же оставить заявку По одному из выбранных вариантов : Заполнить заявку онлайн или связаться с сотрудником',reply_markup=markup)
+    await bot.send_message(call.message.chat.id,text='Мы лучшие в своем деле и нам нечего скрывать ! Вы можете самостоятельно сверить цены услуг других операторов Или же оставить заявку По одному из выбранных вариантов : Заполнить заявку онлайн или связаться с сотрудником',reply_markup=MainMenu)
     await edit_opros(call.message.chat.id,data)
 
     await call.answer()
@@ -182,15 +174,10 @@ async def adress(msg: types.Message,state: FSMContext):
 #region Главное меню
 @dp.callback_query_handler(text='main')
 async def main_menu(call: types.CallbackQuery):
-    menu = InlineKeyboardMarkup(row_width=3)
-    but1 = InlineKeyboardButton("Сверить цены", callback_data='sverit')
-    but2 = InlineKeyboardButton("Заполнить заявку онлайн", callback_data='online')
-    but3 = InlineKeyboardButton("Позвонить на номер сотрудника",callback_data='phone')
-    menu.row(but1)
-    menu.row(but2)
-    menu.row(but3)
-
-    await call.message.edit_text('Вы зашли главное меню',reply_markup=menu)
+    await call.message.edit_text('Вы Вернулись в главное меню',reply_markup=MainMenu)
+@dp.message_handler(commands=['main'])
+async def main_menu(msg: types.Message):
+    await bot.send_message(msg.from_user.id,'Вы Вернулись в главное меню',reply_markup=MainMenu)
 #endregion
 
 #region Переход по кнопкам
