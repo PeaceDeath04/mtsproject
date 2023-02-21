@@ -6,19 +6,29 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-from sqlite import db_start,edit_profile,create_profile,edit_opros,create_opros,update_table
+from sqlite import db_start,edit_profile,create_profile,edit_opros,create_opros,update_table,update_tarif
 from main import dp,bot 
 from markups import but_admin_menu,reverse_admin_menu
 
 admin_id = 967282513
 
+#region Машина состояний
 class StateGroupHelol(StatesGroup):
     """Машина Состояний StateGroup
-       Здесь инициализируются этапы опросов/анкетирования клиента"""
+       Здесь изменяется текст сохранением его в бд"""
 
     Question1 = State()
     Question2 = State()
 
+class StateGroupTarifGet(StatesGroup):
+    """Машина Состояний StateGroup
+       Здесь инициализируются этапы опросов/анкетирования клиента"""
+
+    StateMain = State()
+    StateCaption = State()
+#endregion
+
+#region Админ панель
 @dp.message_handler(chat_id=admin_id,text='admin')
 async def admin_menu(msg: types.Message):
     await bot.send_message(chat_id=admin_id, text='Меню админа',reply_markup=but_admin_menu)
@@ -27,7 +37,9 @@ async def admin_menu(msg: types.Message):
 async def admin_menu(msg: types.Message):
     await bot.send_message(chat_id=admin_id, text='Меню админа',reply_markup=but_admin_menu)
 
+#endregion
 
+#region изменение Сообщения
 @dp.callback_query_handler(chat_id=admin_id,text='helol_txt')
 async def admin_menu(call: types.CallbackQuery):
     await call.message.edit_text(text='Напиши приветственный текст')
@@ -49,6 +61,27 @@ async def helolRename(msg: types.Message,state: FSMContext):
     update_table('WherePlus',msg.text)
     await state.finish()
     await bot.send_message(chat_id=admin_id, text='Текст успешно изменён', reply_markup=reverse_admin_menu)
+#endregion
+
+#region изменение тарифа
+@dp.callback_query_handler(chat_id=admin_id,text='edit_tarif')
+async def admin_menu(call: types.CallbackQuery):
+    await call.message.edit_text(text='Дайте Название тарифу')
+    await StateGroupTarifGet.StateMain.set()
+@dp.message_handler(chat_id=admin_id,state=StateGroupTarifGet.StateMain)
+async def editMainText(msg: types.Message,state: FSMContext):
+    update_tarif('MainName',msg.text)
+    await StateGroupTarifGet.StateCaption.set()
+    await bot.send_message(chat_id=admin_id, text='Теперь напишите описание тарифа')
+
+@dp.message_handler(chat_id=admin_id,state=StateGroupTarifGet.StateCaption)
+async def editMainText(msg: types.Message,state: FSMContext):
+    update_tarif('caption',msg.text)
+    await state.finish()
+    await bot.send_message(chat_id=admin_id, text='Тариф успешно изменён', reply_markup=reverse_admin_menu)
+
+
+#endregion
 
 
 

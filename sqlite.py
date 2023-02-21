@@ -16,9 +16,9 @@ async def db_start():
                 "Kvartira TEXT,"
                 "PhoneNumber TEXT)")
 
-    cur.execute("CREATE TABLE IF NOT EXISTS text_table(HelolText TEXT,WherePlus TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS text_table(HelolText TEXT,WherePlus TEXT, MenuText TEXT)")
 
-    cur.execute("CREATE TABLE IF NOT EXISTS tarifi(MainName TEXT,caption TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS tarifi(MainName TEXT,caption TEXT,id_tarif TEXT)")
 
     cur.execute("CREATE TABLE IF NOT EXISTS questions(q1 TEXT,q2 TEXT,q3 TEXT,q4 TEXT,q5 TEXT)")
 
@@ -31,12 +31,29 @@ def update_table(text,obj):
     sql = cur.execute("UPDATE text_table SET {} = '{}' ".format(text,obj))
     db.commit()
 
+def update_tarif(text,obj):
+    """Обновление базы данных , сначало ввод какой именно текст изменить , а потом его содержимое"""
+    db = sq.connect('databd.db')
+    cur = db.cursor()
+    sql = cur.execute("UPDATE tarifi SET {} = '{}' ".format(text,obj))
+    db.commit()
+
 def show_on_bd(name_table):
     db = sq.connect('databd.db')
     cur = db.cursor()
     sql = cur.execute("SELECT {key} FROM text_table".format(key=name_table)).fetchone()
     db.commit()
     return  sql[0]
+
+def show_tarif_bd(id_tarif):
+    db = sq.connect('databd.db')
+    cur = db.cursor()
+    sql = f"SELECT * FROM tarifi WHERE id_tarif = {id_tarif}"
+    cur.execute(sql)
+    rows = cur.fetchall()
+    obj = rows
+    return obj[0]
+
 
 
 async def create_opros(user_id):

@@ -9,17 +9,18 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import admin_tg
 from disp import bot,dp,storage
 
-from sqlite import db_start,edit_profile,create_profile,edit_opros,create_opros,show_on_bd
+from sqlite import db_start,edit_profile,create_profile,edit_opros,create_opros,show_on_bd,show_tarif_bd
 from texts import questions,answers,tarif_on_sale
 
 
-
+#region функции
 async def on_startup(_):
     """Метод on_startup\n
        При Запуске программы main.py происходит проверка на наличие или создание дата базы
        также сюда можно подставить любой метод, который вы хотите вызвать в начале запуска программы"""
 
     await db_start()
+
 
 class StateGroupOpros(StatesGroup):
     """Машина Состояний StateGroup
@@ -66,7 +67,6 @@ async def ClearAnsw(data):
 
 #endregion
 
-#region Анкетирование
 
 
 @dp.message_handler(commands=['start'])
@@ -78,6 +78,7 @@ async def but_pressed(message: types.Message) -> None:
     )
     await message.answer(show_on_bd('HelolText'),reply_markup= markup)
 
+#region Анкетирование
 @dp.callback_query_handler(text=["opros"])
 async def btn_pressed(call: types.CallbackQuery):
     markup = await SetInlineBut(answers[0])
@@ -127,8 +128,9 @@ async def que5(call: types.CallbackQuery,state: FSMContext):
         data['question5'] = await ClearAnsw(call.data)
 
     await call.message.edit_text(f'Большое спасибо за прохождение опроса\n'
-                                 f'Мы готовы предложить вам \n'+
-                                 '\n'.join(map(', '.join, tarif_on_sale)))
+                                 f'Мы готовы предложить вам \n '
+                                 '\n'
+                                 f'{show_tarif_bd(1)[0]}\n{show_tarif_bd(1)[1]}',parse_mode = 'html')
     markup = InlineKeyboardMarkup(row_width=3)
     but1 = InlineKeyboardButton("Сверить цены",callback_data='sverit')
     but2 = InlineKeyboardButton("Заполнить заявку онлайн", callback_data='online')
@@ -142,6 +144,9 @@ async def que5(call: types.CallbackQuery,state: FSMContext):
 
     await call.answer()
     await state.finish()
+#endregion
+
+#region Заявка онлайн
 @dp.callback_query_handler(text='online')
 async def onlineZayav(call: types.CallbackQuery,state: FSMContext):
     await call.message.edit_text('Для начала напишите Фио')
@@ -172,7 +177,9 @@ async def adress(msg: types.Message,state: FSMContext):
     await bot.send_message(msg.from_user.id,'Отлично Ваша заявка отправлена!Ожидайте звонка!',reply_markup=markup)
     await edit_profile(msg.from_user.id,data)
     await state.finish()
+#endregion
 
+#region Главное меню
 @dp.callback_query_handler(text='main')
 async def main_menu(call: types.CallbackQuery):
     menu = InlineKeyboardMarkup(row_width=3)
@@ -184,6 +191,9 @@ async def main_menu(call: types.CallbackQuery):
     menu.row(but3)
 
     await call.message.edit_text('Вы зашли главное меню',reply_markup=menu)
+#endregion
+
+#region Переход по кнопкам
 @dp.callback_query_handler(text='sverit')
 async def sverka(call: types.CallbackQuery):
     sverkamenu = InlineKeyboardMarkup(row_width=6)
